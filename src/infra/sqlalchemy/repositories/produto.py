@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from schema import schemas
-from infra.sqlalchemy.models import models
+from src.schema import schemas
+from src.infra.sqlalchemy.models import models
 
 class RepositorioProduto():
 
@@ -10,7 +10,8 @@ class RepositorioProduto():
     def criar(self, produto: schemas.Produto):
         db_produto = models.Produto(nome=produto.nome, 
         detalhes=produto.detalhes, preco=produto.preco,
-        disponivel=produto.disponivel)
+        disponivel=produto.disponivel,
+        usuario_id=produto.usuario_id)
 
         self.db.add(db_produto)
         self.db.commit()

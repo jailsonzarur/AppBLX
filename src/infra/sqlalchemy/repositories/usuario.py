@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from schema import schemas
-from infra.sqlalchemy.models import models
+from src.schema import schemas
+from src.infra.sqlalchemy.models import models
 
 class RepositorioUsuario():
 
@@ -9,7 +9,8 @@ class RepositorioUsuario():
 
     def criar(self, usuario: schemas.Usuario):
         db_usuario = models.Usuario(nome= usuario.nome,
-                                        telefone= usuario.telefone)
+                                    telefone= usuario.telefone,
+                                    senha=usuario.senha)
         self.db.add(db_usuario)
         self.db.commit()
         self.db.refresh(db_usuario)
