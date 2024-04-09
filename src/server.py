@@ -1,45 +1,32 @@
 from fastapi import FastAPI, Depends, status
+from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from sqlalchemy.orm import Session
-from src.infra.sqlalchemy.repositories.produto import RepositorioProduto
 from src.infra.sqlalchemy.repositories.usuario import RepositorioUsuario
-from src.schema.schemas import Produto, Usuario, ProdutoSimples, UsuarioSimples, ProdutoSimplesAtualizar
-from src.infra.sqlalchemy.config.database import get_bd, criar_bd
+from src.schema.schemas import Usuario
+from src.infra.sqlalchemy.config.database import get_bd
+from src.routers import rotas_produtos
 
-criar_bd()
+origins = ['http://127.0.0.1:8000/']
+
+middleware = [
+    Middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=['*'],
+        allow_headers=['*']
+    )
+]
+
 
 app = FastAPI()
 
-#CORS
-app.middleware(CORSMiddleware,
-               allow_origins = ['http://localhost:3000'],
-               allow_credentials = True,
-               allow_methods=["*"],
-               allow_headers=["*"])
-
 
 #PRODUTOS
+app.include_router(rotas_produtos.router)
 
-@app.post('/produtos', status_code=status.HTTP_201_CREATED, response_model=ProdutoSimples)
-def criar_produto(produto: Produto, db: Session = Depends(get_bd)):
-    produto_criado = RepositorioProduto(db).criar(produto)
-    return produto_criado
-
-@app.get('/produtos', status_code=status.HTTP_200_OK, response_model=List[ProdutoSimples])
-def listar_produtos(db: Session = Depends(get_bd)):
-    produtos = RepositorioProduto(db).listar()
-    return produtos
-
-@app.put('/produtos/{id}', response_model=ProdutoSimplesAtualizar)
-def atualizar_produto(id: int, produto: ProdutoSimplesAtualizar, db: Session = Depends(get_bd)):
-    RepositorioProduto(db).editar(id, produto)
-    return produto
-
-@app.delete('/produtos/{id}')
-def deletar_produto(id: int, db: Session = Depends(get_bd)):
-    RepositorioProduto(db).remover(id)
-    return {"mensagem": "produto removido"}
 
 #USUARIOS
 
